@@ -4,120 +4,106 @@ import java.util.Scanner;
 
 public class Ex6 {
     public static void main(String[] args) {
-        programManager();
+        equationAction();
     }
 
-    public static void programManager() {
-        System.out.println("Type quadratic equation: ");
+    public static void equationAction() {
         Scanner scanner = new Scanner(System.in);
-        String inputUserOld = scanner.nextLine();
-        String inputUser = inputUserOld.replaceAll(" ", "");
-        boolean isCorrect;
-
-        isCorrect = isCorrect(inputUser);
-        int a;
-        int b;
-        int c;
-
-        if (isCorrect) {
-            a = returnsAValue(inputUser);
-            b = returnsBValue(inputUser);
-            c = returnsCValue(inputUser);
-            quadraticEquationRootsPrinter(a, b, c);
+        String userEquation = scanner.nextLine();
+        checkUserEquation(userEquation);
+        if (!checkUserEquation(userEquation)) {
+            System.out.println("Your equation is not correct");
         } else {
-            System.out.println("Your input isn't correct");
+            System.out.println(checkUserEquation(userEquation));
+            int numberA = aExtractor(userEquation);
+            int numberB = bExtractor(userEquation);
+            int numberC = cExtractor(userEquation);
+            System.out.println(equationSolver(numberA, numberB, numberC));
         }
     }
 
+    public static String equationSolver(int a, int b, int c) {
 
-    public static boolean isCorrect(String inputUser) {
-        boolean isCorrect = false;
-        String cond1 = "=0";
-        String cond2 = "x^2";
-        String cond3 = "x+";
-        String cond4 = "x-";
-        String cond5 = "+x";
-        String cond6 = "-x";
-        String cond7 = ",";
-        String cond8 = ".";
-        String cond9 = "x=";
-        if (inputUser.contains(cond1) &&
-                inputUser.contains(cond2) &&
-                inputUser.lastIndexOf("0") == inputUser.length() - 1 &&
-                (inputUser.contains(cond3) ||
-                        inputUser.contains(cond4) ||
-                        inputUser.contains(cond5) ||
-                        inputUser.contains(cond6) ||
-                        inputUser.contains(cond9))) {
-            isCorrect = true;
-        } else if (inputUser.contains(cond7) || inputUser.contains(cond8)) {
-            return isCorrect;
+        String solution = "";
+        double delta = Math.sqrt(b*b-4*a*c);
+        if (delta < 0) {
+            System.out.println("Invalid solution.");
         }
-
-        return isCorrect;
-    }
-
-    public static int returnsAValue(String userEquation) {
-        int a;
-        if (userEquation.startsWith("-x^2")) {
-            a = -1;
-        } else if (userEquation.startsWith("x^2")) {
-            a = 1;
-        } else if (userEquation.startsWith("-")) {
-            String aParNegative = "";
-            aParNegative += userEquation.substring(0, userEquation.indexOf("x^2"));
-            a = Integer.parseInt(aParNegative);
+        double firstRoot = ((-b) + (delta)) / (2 * a);
+        double secondRoot = ((-b) - (delta)) / (2 * a);
+        if (secondRoot == secondRoot) {
+            System.out.println("There is one solution: " + firstRoot);
         } else {
-            String aParPositive = "";
-            aParPositive += userEquation.substring(0, userEquation.indexOf("x^2"));
-            a = Integer.parseInt(aParPositive);
+            solution = "X1: " + firstRoot + ", X2:" + (secondRoot);
         }
-        return a;
+        return solution;
     }
 
-
-    public static int returnsBValue(String userEquation) {
-        int b=0;
-        String bPar = "";
-        if (userEquation.contains("x^2+x")) {
-            b = 1;
-        } else if (userEquation.contains("x^2-x")) {
-            b = -1;
-        } else if (userEquation.contains("x+")) {
-            bPar += userEquation.substring(userEquation.indexOf("x^2") + 3, userEquation.indexOf("x+"));
-            b = Integer.parseInt(bPar);
-        } else if (userEquation.contains("x-")) {
-            bPar += bPar.substring(userEquation.indexOf("x^2") + 3, userEquation.indexOf("x-"));
-            b = Integer.parseInt(bPar);
-        } else if (userEquation.contains("x=0")) {
-            bPar += bPar.substring(userEquation.indexOf("x^2") + 3, userEquation.indexOf("x="));
-            b = Integer.parseInt(bPar);
+    public static boolean checkUserEquation(String userEquation) {
+        if (!userEquation.contains("x^2") || !userEquation.contains("=0")) {
+            return false;
         }
-        return b;
+        int index = userEquation.indexOf("=0");
+        userEquation = userEquation.substring(0, index);
+        index = userEquation.indexOf("x^2");
+        String a = userEquation.substring(0, index);
+        if ((a.charAt(0) == '+' || a.charAt(0) == '-') && a.length() == 1) {
+            a = a + 1;
+        }
+        userEquation = userEquation.substring(index + 3);
+        index = userEquation.indexOf("x");
+        String b = userEquation.substring(0, index);
+        if ((b.charAt(0) == '+' || b.charAt(0) == '-') && b.length() == 1) {
+            b = b + 1;
+        }
+        String c = userEquation.substring(index + 1);
+        if ((c.charAt(0) == '+' || c.charAt(0) == '-') && c.length() == 1) {
+            c = c + 1;
+        }
+        if (isNumeric(a) && isNumeric(b) && isNumeric(c)) {
+            return true;
+        } else {
+            return false;
+        }
     }
 
-    public static int returnsCValue(String userEquation) {
-        int c=0;
-        String cPar = "";
-        if (userEquation.contains("x+")) {
-            cPar += userEquation.substring(userEquation.indexOf("x+") + 1, userEquation.indexOf("="));
-            c = Integer.parseInt(cPar);
-        } else if (userEquation.contains("x-")) {
-            cPar += userEquation.substring(userEquation.indexOf("x-") + 1, userEquation.indexOf("="));
-            c = Integer.parseInt(cPar);
-        }
-        return c;
+    public static int aExtractor(String userEquation) {
+        int aIndex = userEquation.indexOf("x^2");
+        userEquation = userEquation.substring(0, aIndex);
+        int aNumber = Integer.parseInt(userEquation);
+        System.out.println(aNumber);
+        return aNumber;
     }
 
+    public static int bExtractor(String userEquation) {
+        int index = userEquation.indexOf("x^2");
+        userEquation = userEquation.substring(index + 3);
+        index = userEquation.indexOf("x");
+        userEquation = userEquation.substring(0, index);
+        int bNumber = Integer.parseInt(userEquation);
+        System.out.println(bNumber);
+        return bNumber;
+    }
 
-    public static void quadraticEquationRootsPrinter(int a, int b, int c) {
-        double delta = Math.sqrt(b * b - 4 * a * c);
-        double x1 = (-b + delta) / 2 * a;
-        double x2 = (-b - delta) / 2 * a;
-        System.out.println("The roots for your quadratic equation is: ");
-        System.out.println(x1);
-        System.out.println("and");
-        System.out.println(x2);
+    public static int cExtractor(String userEquation) {
+        int index = userEquation.indexOf("x^2");
+        userEquation = userEquation.substring(index + 3);
+        index = userEquation.indexOf("x");
+        userEquation = userEquation.substring(index + 1, userEquation.length() - 2);
+        int cNumber = Integer.parseInt(userEquation);
+        System.out.println(cNumber);
+        return cNumber;
+    }
 
+    public static boolean isNumeric(String strNum) {
+        if (strNum == null) {
+            return false;
+        }
+        try {
+            double d = Double.parseDouble(strNum);
+        } catch (NumberFormatException nfe) {
+            return false;
+        }
+        return true;
     }
 }
